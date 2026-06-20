@@ -15,29 +15,39 @@ function inferCategory(title) {
 
 function buildHooks(productName, category) {
   return [
-    `이거 하나로 ${category} 스트레스가 확 줄어듭니다`,
-    `${productName}, 왜 이제 알았지 싶은 아이템`,
-    `바쁜 사람에게 딱 맞는 ${category} 해결템`,
-    `써보면 매일 손이 가는 이유가 있습니다`,
-    `집에 두면 생각보다 훨씬 자주 씁니다`,
-    `선물용으로도 실패 확률 낮은 실사용템`,
-    `복잡한 기능보다 진짜 필요한 것만 담았습니다`,
-    `10초만 봐도 필요한지 바로 감이 옵니다`,
-    `후기 찾아보는 시간을 줄여주는 선택지`,
-    `가격보다 사용 빈도가 먼저 떠오르는 제품`
+    `이런 불편 있으면 이건 꼭 보세요`,
+    `부모님께 이런 순간이 있다면 확인하세요`,
+    `왜 이제 알았지 싶은 ${category} 해결템`,
+    `10초만 보면 필요한지 바로 감 옵니다`,
+    `매일 쓰는 이유가 딱 보이는 제품입니다`,
+    `선물 전에 이 장면부터 확인하세요`,
+    `${productName}, 이런 분께 특히 잘 맞습니다`,
+    `후기 보기 전에 실제 쓰임새부터 보세요`,
+    `집에 두면 생각보다 자주 찾게 됩니다`,
+    `복잡한 설명 없이 사용 장면으로 보여드립니다`
   ];
+}
+
+function buildHookPattern(category) {
+  return [
+    "최신 숏폼 인기 구조 참고",
+    "상품명보다 문제 상황을 먼저 제시",
+    "첫 1초에 궁금증과 자기해당감을 만든다",
+    "과장된 효능 단정 없이 사용 장면 중심으로 신뢰감 있게 말한다",
+    `타겟 감정: ${category} 불편을 줄이고 싶은 사람`
+  ].join(" / ");
 }
 
 function buildThumbnailTexts(productName) {
   return [
-    "왜 이제 샀지?",
-    "매일 쓰는 이유",
+    "이런 분께 추천",
     "10초 실사용",
-    "집에 두면 편함",
-    "선물템 후보",
-    "후기 많은 이유",
-    "생활이 쉬워짐",
-    "깔끔한 해결템",
+    "왜 이제 알았지?",
+    "부모님 선물 후보",
+    "매일 쓰는 이유",
+    "생활이 편해짐",
+    "후기 전 확인",
+    "실사용 장면",
     "지금 필요한템",
     productName.length > 10 ? "실사용 추천" : `${productName} 추천`
   ];
@@ -56,6 +66,9 @@ export function generateContent(input) {
   const category = inferCategory(productName);
   const hooks = buildHooks(productName, category);
   const thumbnailTexts = buildThumbnailTexts(productName);
+  const primaryHook = hooks[0];
+  const primaryThumbnailText = thumbnailTexts[0];
+  const hookPattern = buildHookPattern(category);
   const scripts = buildScripts(productName, input.coupangLink);
 
   const target = [
@@ -83,7 +96,9 @@ export function generateContent(input) {
   const videoPrompt = [
     "9:16 vertical short-form commerce video",
     "10-15 seconds",
-    "first 3 seconds must include a strong Korean hook text overlay",
+    `first 3 seconds must show this exact Korean hook text as a large readable overlay: "${primaryHook}"`,
+    "place the hook text in the safe top-center area and keep the product visible",
+    `hook style rule: ${hookPattern}`,
     `product: ${productName}`,
     `category mood: ${category}`,
     "realistic product demo, fast but readable cuts, bright natural lighting",
@@ -94,7 +109,7 @@ export function generateContent(input) {
   const thumbnailPrompt = [
     "9:16 Korean short-form commerce thumbnail",
     `feature ${productName}`,
-    "large readable Korean headline",
+    `use this exact large readable Korean headline: "${primaryThumbnailText}"`,
     "clean product-centered composition",
     "high contrast, realistic, bright shopping content style"
   ].join(", ");
@@ -105,7 +120,10 @@ export function generateContent(input) {
     target,
     keyBenefits: benefits,
     hooks,
+    primaryHook,
+    hookPattern,
     thumbnailTexts,
+    primaryThumbnailText,
     videoScripts: scripts,
     instagramCaptions,
     youtubeDescription,
@@ -117,12 +135,15 @@ export function generateContent(input) {
       thumbnailPrompt,
       aspectRatio: "9:16",
       durationSeconds: 12,
-      firstThreeSeconds: hooks[0]
+      firstThreeSeconds: primaryHook,
+      thumbnailText: primaryThumbnailText,
+      hookPattern
     },
     infork: {
       productName,
       description: `${productName}\n\n${benefits.join("\n")}\n\n${disclosure}`,
       link: input.coupangLink,
+      inforkLink: input.inforkLink || "",
       image: input.imageUrl || input.imageName || ""
     }
   };
