@@ -1,0 +1,6 @@
+{
+  "videoUrl": "https://example.com/video.mp4",
+  "channels": ["youtube_shorts", "tiktok"],
+  "caption": "책상 위 먼지, 10초 만에 정리 끝. 자세한 링크는 고정댓글에서 확인하세요.",
+  "scheduledAt": "2026-06-21T10:00:00+09:00"
+}
