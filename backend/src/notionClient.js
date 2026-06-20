@@ -44,9 +44,13 @@ function buildContentProperties(input, content) {
     "타겟": propertyText(content.target),
     "핵심장점": propertyText(content.keyBenefits),
     "후킹": propertyText(content.hooks),
+    "대표후킹문구": propertyText(content.primaryHook),
+    "후킹패턴": propertyText(content.hookPattern),
     "썸네일문구": propertyText(content.thumbnailTexts),
+    "대표썸네일문구": propertyText(content.primaryThumbnailText),
     "영상대본": propertyText(content.videoScripts),
     "영상프롬프트": propertyText(content.higgsfield.videoPrompt),
+    "썸네일프롬프트": propertyText(content.higgsfield.thumbnailPrompt),
     "캡션": propertyText([
       ...content.instagramCaptions,
       content.youtubeDescription,
