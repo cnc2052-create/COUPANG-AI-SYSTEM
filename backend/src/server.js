@@ -8,6 +8,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateContent } from "./contentGenerator.js";
 import {
+  checkNotionConnection,
   createContentPage,
   markInforkComplete,
   markUploadComplete,
@@ -32,10 +33,20 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "COUPANG-AI-SYSTEM" });
 });
 
+app.get("/notion/status", async (_req, res, next) => {
+  try {
+    const notion = await checkNotionConnection();
+    res.status(notion.ok ? 200 : 503).json(notion);
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post("/content/generate", upload.single("productImage"), async (req, res, next) => {
   try {
     const productTitle = req.body.productTitle;
     const coupangLink = req.body.coupangLink;
+    const inforkLink = req.body.inforkLink || "";
 
     if (!productTitle || !coupangLink) {
       return res.status(400).json({ error: "상품 제목과 쿠팡파트너스 링크는 필수입니다." });
@@ -54,11 +65,18 @@ app.post("/content/generate", upload.single("productImage"), async (req, res, ne
     const content = generateContent({
       productTitle,
       coupangLink,
+      inforkLink,
       imageUrl,
       imageName
     });
 
-    const notion = await createContentPage({ productTitle, coupangLink, imageUrl, imageName }, content);
+    const notion = await createContentPage({ productTitle, coupangLink, inforkLink, imageUrl, imageName }, content);
+    if (notion.skipped && process.env.REQUIRE_NOTION_SAVE !== "false") {
+      return res.status(503).json({
+        error: `Notion 저장 연결값이 필요합니다. ${notion.reason}`,
+        notion
+      });
+    }
     const item = {
       id: randomUUID(),
       notionPageId: notion.id || null,
