@@ -1,0 +1,82 @@
+{
+  "name": "COUPANG-AI-SYSTEM - Higgsfield 영상 생성",
+  "purpose": "Notion에서 영상생성대기 상태를 감지하고 Higgsfield 영상 생성 후 Notion을 업데이트한다.",
+  "variables": {
+    "NOTION_DATABASE_NAME": "쿠팡 콘텐츠 센터",
+    "HIGGSFIELD_API_URL": "{{HIGGSFIELD_API_URL}}",
+    "HIGGSFIELD_API_KEY": "{{HIGGSFIELD_API_KEY}}"
+  },
+  "flow": [
+    {
+      "step": 1,
+      "app": "Notion",
+      "module": "Watch Data Source Items",
+      "name": "쿠팡 콘텐츠 센터 감지",
+      "settings": {
+        "data_source": "쿠팡 콘텐츠 센터",
+        "limit": 1
+      },
+      "filter": {
+        "영상상태": "영상생성대기"
+      }
+    },
+    {
+      "step": 2,
+      "app": "Notion",
+      "module": "Update a Data Source Item",
+      "name": "영상 생성중으로 변경",
+      "mapping": {
+        "item_id": "{{1.id}}",
+        "영상상태": "영상생성중"
+      }
+    },
+    {
+      "step": 3,
+      "app": "HTTP",
+      "module": "Make a request",
+      "name": "Higgsfield 영상 생성 요청",
+      "settings": {
+        "method": "POST",
+        "url": "{{HIGGSFIELD_API_URL}}",
+        "headers": {
+          "Authorization": "Bearer {{HIGGSFIELD_API_KEY}}",
+          "Content-Type": "application/json"
+        },
+        "body_type": "raw",
+        "content_type": "application/json",
+        "body": {
+          "prompt": "{{1.영상프롬프트}}",
+          "thumbnail_prompt": "{{1.썸네일프롬프트}}",
+          "aspect_ratio": "9:16",
+          "duration_seconds": 12,
+          "hook_required": true,
+          "product_name": "{{1.상품명}}",
+          "product_image": "{{1.상품이미지}}"
+        }
+      }
+    },
+    {
+      "step": 4,
+      "app": "Notion",
+      "module": "Update a Data Source Item",
+      "name": "영상 URL 저장 및 완료 처리",
+      "mapping": {
+        "item_id": "{{1.id}}",
+        "영상URL": "{{3.body.video_url}}",
+        "영상상태": "영상생성완료",
+        "업로드상태": "업로드대기"
+      }
+    }
+  ],
+  "test": [
+    "Notion에서 테스트 상품의 영상상태를 영상생성대기로 변경한다.",
+    "Make에서 Run once를 누른다.",
+    "영상상태가 영상생성중으로 바뀌는지 확인한다.",
+    "Higgsfield 응답에 video_url이 있는지 확인한다.",
+    "Notion 영상URL과 영상생성완료 상태가 저장되는지 확인한다."
+  ],
+  "notes": [
+    "Higgsfield가 video_url이 아니라 job_id를 반환하면, step 3 뒤에 Sleep과 HTTP 조회 모듈을 추가해야 한다.",
+    "Make에서 Notion 컬럼명이 다르게 보이면 실제 컬럼명에 맞춰 매핑한다."
+  ]
+}
