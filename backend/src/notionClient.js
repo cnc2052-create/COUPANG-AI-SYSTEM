@@ -1,4 +1,4 @@
-const notionVersion = "2022-06-28";
+const notionVersion = process.env.NOTION_VERSION || "2026-03-11";
 
 function joinLines(value) {
   if (Array.isArray(value)) return value.join("\n");
@@ -40,6 +40,7 @@ function buildContentProperties(input, content) {
     "상품명": propertyTitle(content.productName),
     "상품이미지": propertyFile(input.imageUrl, input.imageName || "상품 이미지"),
     "쿠팡파트너스링크": propertyUrl(input.coupangLink),
+    "인포크링크": propertyUrl(input.inforkLink || ""),
     "타겟": propertyText(content.target),
     "핵심장점": propertyText(content.keyBenefits),
     "후킹": propertyText(content.hooks),
@@ -58,6 +59,21 @@ function buildContentProperties(input, content) {
     "영상상태": propertySelect("영상생성대기"),
     "업로드상태": propertySelect("업로드대기")
   };
+}
+
+function buildPageParent() {
+  const dataSourceId = process.env.NOTION_DATA_SOURCE_ID;
+  const databaseId = process.env.NOTION_DATABASE_ID;
+
+  if (dataSourceId) {
+    return { data_source: { id: dataSourceId } };
+  }
+
+  if (databaseId) {
+    return { database_id: databaseId };
+  }
+
+  return null;
 }
 
 async function notionRequest(path, options = {}) {
@@ -85,15 +101,15 @@ async function notionRequest(path, options = {}) {
 }
 
 export async function createContentPage(input, content) {
-  const dataSourceId = process.env.NOTION_DATA_SOURCE_ID;
-  if (!dataSourceId) {
-    return { skipped: true, reason: "NOTION_DATA_SOURCE_ID is not set" };
+  const parent = buildPageParent();
+  if (!parent) {
+    return { skipped: true, reason: "NOTION_DATA_SOURCE_ID or NOTION_DATABASE_ID is not set" };
   }
 
   const result = await notionRequest("/pages", {
     method: "POST",
     body: JSON.stringify({
-      parent: { data_source_id: dataSourceId },
+      parent,
       properties: buildContentProperties(input, content)
     })
   });
@@ -102,6 +118,38 @@ export async function createContentPage(input, content) {
     id: result.id,
     url: result.url
   };
+}
+
+export async function checkNotionConnection() {
+  const token = process.env.NOTION_TOKEN;
+  const dataSourceId = process.env.NOTION_DATA_SOURCE_ID;
+  const databaseId = process.env.NOTION_DATABASE_ID;
+
+  if (!token) {
+    return { ok: false, reason: "NOTION_TOKEN is not set" };
+  }
+
+  if (dataSourceId) {
+    const result = await notionRequest(`/data_sources/${dataSourceId}`, { method: "GET" });
+    return {
+      ok: true,
+      target: "data_source",
+      id: dataSourceId,
+      title: result.title?.map?.((item) => item.plain_text).join("") || "쿠팡 콘텐츠 센터"
+    };
+  }
+
+  if (databaseId) {
+    const result = await notionRequest(`/databases/${databaseId}`, { method: "GET" });
+    return {
+      ok: true,
+      target: "database",
+      id: databaseId,
+      title: result.title?.map?.((item) => item.plain_text).join("") || "쿠팡 콘텐츠 센터"
+    };
+  }
+
+  return { ok: false, reason: "NOTION_DATA_SOURCE_ID or NOTION_DATABASE_ID is not set" };
 }
 
 export async function updatePageStatus(pageId, properties) {
