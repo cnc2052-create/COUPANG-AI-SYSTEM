@@ -1,0 +1,70 @@
+{
+  "name": "COUPANG-AI-SYSTEM - Buffer 예약 업로드",
+  "purpose": "Notion에서 영상생성완료 상태를 감지하고 Buffer로 유튜브 쇼츠와 틱톡을 예약한 뒤 Notion 상태를 예약완료로 변경한다.",
+  "variables": {
+    "NOTION_DATABASE_NAME": "쿠팡 콘텐츠 센터",
+    "YOUTUBE_PROFILE": "{{BUFFER_YOUTUBE_PROFILE}}",
+    "TIKTOK_PROFILE": "{{BUFFER_TIKTOK_PROFILE}}"
+  },
+  "flow": [
+    {
+      "step": 1,
+      "app": "Notion",
+      "module": "Watch Data Source Items",
+      "name": "영상 생성 완료 항목 감지",
+      "settings": {
+        "data_source": "쿠팡 콘텐츠 센터",
+        "limit": 1
+      },
+      "filter": {
+        "영상상태": "영상생성완료",
+        "업로드상태": "업로드대기"
+      }
+    },
+    {
+      "step": 2,
+      "app": "Buffer",
+      "module": "Create a status update",
+      "name": "유튜브 쇼츠 예약",
+      "mapping": {
+        "profile": "{{BUFFER_YOUTUBE_PROFILE}}",
+        "text": "{{1.유튜브설명란}}",
+        "media_url": "{{1.영상URL}}",
+        "scheduled_at": "{{addMinutes(now; 30)}}"
+      }
+    },
+    {
+      "step": 3,
+      "app": "Buffer",
+      "module": "Create a status update",
+      "name": "틱톡 예약",
+      "mapping": {
+        "profile": "{{BUFFER_TIKTOK_PROFILE}}",
+        "text": "{{1.틱톡캡션}}",
+        "media_url": "{{1.영상URL}}",
+        "scheduled_at": "{{addMinutes(now; 35)}}"
+      }
+    },
+    {
+      "step": 4,
+      "app": "Notion",
+      "module": "Update a Data Source Item",
+      "name": "업로드 예약 완료 처리",
+      "mapping": {
+        "item_id": "{{1.id}}",
+        "업로드상태": "예약완료"
+      }
+    }
+  ],
+  "test": [
+    "Notion 테스트 항목에 영상URL을 넣는다.",
+    "영상상태를 영상생성완료, 업로드상태를 업로드대기로 변경한다.",
+    "Make에서 Run once를 누른다.",
+    "Buffer 예약 목록에 유튜브 쇼츠와 틱톡 예약이 생기는지 확인한다.",
+    "Notion 업로드상태가 예약완료로 바뀌는지 확인한다."
+  ],
+  "notes": [
+    "Buffer 계정에서 유튜브와 틱톡 프로필을 먼저 연결해야 한다.",
+    "Buffer 모듈에서 media_url 필드명이 다르게 보이면 영상URL을 미디어/첨부 URL 필드에 매핑한다."
+  ]
+}
