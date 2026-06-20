@@ -32,6 +32,9 @@ HTTP Body:
 ```json
 {
   "prompt": "{{영상프롬프트}}",
+  "first_3_seconds_text": "{{대표후킹문구}}",
+  "hook_pattern": "{{후킹패턴}}",
+  "thumbnail_text": "{{대표썸네일문구}}",
   "thumbnail_prompt": "{{썸네일프롬프트}}",
   "aspect_ratio": "9:16",
   "duration_seconds": 12,
@@ -87,6 +90,8 @@ Notion 마지막 업데이트:
 Notion 테스트 항목:
 
 - `상품명`: 테스트 상품
+- `대표후킹문구`: 첫 3초에 들어갈 문구
+- `대표썸네일문구`: 썸네일에 들어갈 문구
 - `영상프롬프트`: 9:16 숏폼 영상 프롬프트
 - `영상상태`: 영상생성대기
 
