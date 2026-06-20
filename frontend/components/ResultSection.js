@@ -59,6 +59,23 @@ export default function ResultSection({ result, onInforkComplete }) {
         <TextList items={content.keyBenefits} />
       </Block>
 
+      <Block title="대표 후킹 / 썸네일">
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="rounded-md bg-surface p-3">
+            <p className="text-xs font-bold text-brand">대표후킹문구</p>
+            <p className="mt-1 text-sm font-black leading-6">{content.primaryHook}</p>
+          </div>
+          <div className="rounded-md bg-surface p-3">
+            <p className="text-xs font-bold text-brand">대표썸네일문구</p>
+            <p className="mt-1 text-sm font-black leading-6">{content.primaryThumbnailText}</p>
+          </div>
+          <div className="rounded-md bg-surface p-3">
+            <p className="text-xs font-bold text-brand">후킹패턴</p>
+            <p className="mt-1 text-sm leading-6">{content.hookPattern}</p>
+          </div>
+        </div>
+      </Block>
+
       <Block title="후킹 10개">
         <TextList items={content.hooks} />
       </Block>
@@ -120,7 +137,7 @@ export default function ResultSection({ result, onInforkComplete }) {
           {[
             ["상품명", content.infork.productName],
             ["설명", content.infork.description],
-            ["링크", content.infork.link],
+            ["쿠팡파트너스 링크", content.infork.link],
             ["이미지", content.infork.image]
           ].map(([label, value]) => (
             <div key={label} className="flex items-start gap-2 rounded-md bg-surface p-3">
