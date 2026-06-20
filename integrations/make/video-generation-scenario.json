@@ -46,6 +46,9 @@
         "content_type": "application/json",
         "body": {
           "prompt": "{{1.영상프롬프트}}",
+          "first_3_seconds_text": "{{1.대표후킹문구}}",
+          "hook_pattern": "{{1.후킹패턴}}",
+          "thumbnail_text": "{{1.대표썸네일문구}}",
           "thumbnail_prompt": "{{1.썸네일프롬프트}}",
           "aspect_ratio": "9:16",
           "duration_seconds": 12,
