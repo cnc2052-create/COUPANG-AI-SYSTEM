@@ -108,7 +108,9 @@ export default function Home() {
     setLoading(true);
     setError("");
 
-    if (!targetAudience) {
+    const selectedTarget = targetAudience || targetGroup;
+
+    if (!selectedTarget) {
       setError("타겟을 선택해주세요");
       setLoading(false);
       return;
@@ -119,7 +121,7 @@ export default function Home() {
       form.append("productTitle", productTitle);
       form.append("coupangLink", coupangLink);
       form.append("targetGroup", targetGroup);
-      form.append("targetAudience", targetAudience);
+      form.append("targetAudience", selectedTarget);
       if (productImage) form.append("productImage", productImage);
       const nextResult = await generateContent(form);
       setResult(nextResult);
