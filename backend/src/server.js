@@ -46,6 +46,7 @@ app.post("/content/generate", upload.single("productImage"), async (req, res, ne
   try {
     const productTitle = req.body.productTitle;
     const coupangLink = req.body.coupangLink;
+    const targetAudience = req.body.targetAudience || req.body.target || "자녀 구매층";
     const inforkLink = req.body.inforkLink || "";
 
     if (!productTitle || !coupangLink) {
@@ -65,12 +66,13 @@ app.post("/content/generate", upload.single("productImage"), async (req, res, ne
     const content = generateContent({
       productTitle,
       coupangLink,
+      targetAudience,
       inforkLink,
       imageUrl,
       imageName
     });
 
-    const notion = await createContentPage({ productTitle, coupangLink, inforkLink, imageUrl, imageName }, content);
+    const notion = await createContentPage({ productTitle, coupangLink, targetAudience, inforkLink, imageUrl, imageName }, content);
     if (notion.skipped && process.env.REQUIRE_NOTION_SAVE !== "false") {
       return res.status(503).json({
         error: `Notion 저장 연결값이 필요합니다. ${notion.reason}`,
@@ -100,6 +102,10 @@ app.post("/content/generate", upload.single("productImage"), async (req, res, ne
       durationSeconds: content.higgsfield.durationSeconds,
       videoPrompt: content.higgsfield.videoPrompt,
       thumbnailPrompt: content.higgsfield.thumbnailPrompt,
+      firstThreeSeconds: content.higgsfield.firstThreeSeconds,
+      thumbnailText: content.higgsfield.thumbnailText,
+      hookPattern: content.higgsfield.hookPattern,
+      targetAudience: content.targetAudience,
       coupangLink
     });
 
