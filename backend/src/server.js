@@ -46,7 +46,7 @@ app.post("/content/generate", upload.single("productImage"), async (req, res, ne
   try {
     const productTitle = req.body.productTitle;
     const coupangLink = req.body.coupangLink;
-    const targetAudience = String(req.body.targetAudience || req.body.target || "").trim();
+    const targetAudience = String(req.body.targetAudience || req.body.targetGroup || req.body.target || "").trim();
     const inforkLink = req.body.inforkLink || "";
 
     if (!productTitle || !coupangLink) {
