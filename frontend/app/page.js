@@ -6,7 +6,7 @@ import { completeInfork, fetchDashboard, generateContent } from "../lib/api";
 
 const dashboardLabels = [
   ["todayCreated", "오늘 생성 수"],
-  ["inforkPending", "인포크 등록 대기"],
+  ["inforkPending", "인포크등록대기"],
   ["videoPending", "영상 생성 대기"],
   ["videoComplete", "영상 생성 완료"],
   ["uploadComplete", "업로드 완료"]
@@ -24,6 +24,8 @@ const quickKeywords = [
   "수면용품",
   "건강관리용품"
 ];
+
+const targetOptions = ["자녀 구매층", "실사용자", "보호자", "요양·복지 종사자", "재활 환자", "액티브 시니어"];
 
 const researchProducts = {
   "시니어 인기상품": ["초경량 접이식 보행 보조차", "무릎 보호 온열 찜질기", "침대 옆 안전 손잡이"],
@@ -69,6 +71,7 @@ function buildResearch(keyword) {
 export default function Home() {
   const [productTitle, setProductTitle] = useState("");
   const [coupangLink, setCoupangLink] = useState("");
+  const [targetAudience, setTargetAudience] = useState("자녀 구매층");
   const [productImage, setProductImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [researchQuery, setResearchQuery] = useState("시니어 인기상품");
@@ -99,6 +102,7 @@ export default function Home() {
       const form = new FormData();
       form.append("productTitle", productTitle);
       form.append("coupangLink", coupangLink);
+      form.append("targetAudience", targetAudience);
       if (productImage) form.append("productImage", productImage);
       const nextResult = await generateContent(form);
       setResult(nextResult);
@@ -165,7 +169,15 @@ export default function Home() {
         <header className="mb-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-black text-brand">COUPANG-AI-SYSTEM</p>
-            <h1 className="mt-1 text-2xl font-black md:text-4xl">쿠팡 숏폼 콘텐츠 자동 생성</h1>
+            <h1 className="mt-1 text-2xl font-black md:text-4xl">쿠팡 숏폼 콘텐츠 자동화</h1>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <a href="https://partners.coupang.com/" target="_blank" className="rounded-md border border-line bg-white px-3 py-2 text-sm font-black text-ink transition hover:border-brand hover:text-brand">
+                쿠팡 파트너스
+              </a>
+              <a href="https://link.inpock.co.kr/inpockhome" target="_blank" className="rounded-md border border-line bg-white px-3 py-2 text-sm font-black text-ink transition hover:border-brand hover:text-brand">
+                인포크
+              </a>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
             {dashboardLabels.map(([key, label]) => (
@@ -180,6 +192,7 @@ export default function Home() {
         <section className="mb-5 rounded-lg border border-line bg-white p-4 shadow-sm md:p-6">
           <p className="text-sm font-black text-brand">상품 리서치 센터</p>
           <h2 className="mt-1 text-xl font-black">원클릭으로 상품 아이디어 찾기</h2>
+
           <div className="mt-4 flex flex-wrap gap-2">
             {quickKeywords.map((keyword) => (
               <button key={keyword} type="button" onClick={() => runResearch(keyword)} className="h-10 rounded-md border border-line bg-white px-3 text-sm font-bold text-ink transition hover:border-brand hover:text-brand">
@@ -187,11 +200,23 @@ export default function Home() {
               </button>
             ))}
           </div>
+
           <div className="mt-4 grid gap-2 md:grid-cols-[1fr_auto]">
-            <input value={researchQuery} onChange={(event) => setResearchQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") runResearch(researchQuery); }} className="h-12 w-full rounded-md border border-line px-3 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20" placeholder="예: 무릎 관련 상품" />
-            <button type="button" onClick={() => runResearch(researchQuery)} className="h-12 rounded-md bg-brand px-5 text-sm font-black text-white transition hover:bg-[#0b7375]">리서치 시작</button>
+            <input
+              value={researchQuery}
+              onChange={(event) => setResearchQuery(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") runResearch(researchQuery);
+              }}
+              className="h-12 w-full rounded-md border border-line px-3 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+              placeholder="예: 무릎 관련 상품"
+            />
+            <button type="button" onClick={() => runResearch(researchQuery)} className="h-12 rounded-md bg-brand px-5 text-sm font-black text-white transition hover:bg-[#0b7375]">
+              리서치 시작
+            </button>
           </div>
           <p className="mt-2 text-sm font-semibold leading-6 text-[#52616f]">예시: 시니어 인기상품 / 무릎 관련 상품 / 보행 보조 용품 / 실버용품 베스트</p>
+
           <div className="mt-4 grid gap-3 md:grid-cols-3">
             {researchResults.map((item) => (
               <article key={item.title} className="grid gap-3 rounded-md border border-line bg-white p-3">
@@ -204,8 +229,12 @@ export default function Home() {
                   <span className="rounded-md bg-surface px-2 py-2">전환 {item.conversion}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <a href={item.link} target="_blank" className="flex h-10 items-center justify-center rounded-md border border-line text-sm font-black text-ink">쿠팡 보기</a>
-                  <button type="button" onClick={() => selectResearchProduct(item)} className="h-10 rounded-md bg-brand px-3 text-sm font-black text-white transition hover:bg-[#0b7375]">콘텐츠 생성</button>
+                  <a href={item.link} target="_blank" className="flex h-10 items-center justify-center rounded-md border border-line text-sm font-black text-ink">
+                    쿠팡 보기
+                  </a>
+                  <button type="button" onClick={() => selectResearchProduct(item)} className="h-10 rounded-md bg-brand px-3 text-sm font-black text-white transition hover:bg-[#0b7375]">
+                    콘텐츠 생성
+                  </button>
                 </div>
               </article>
             ))}
@@ -213,10 +242,20 @@ export default function Home() {
         </section>
 
         <form id="content-form" onSubmit={onSubmit} className="rounded-lg border border-line bg-white p-4 shadow-sm md:p-6">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-4">
             <label className="block">
               <span className="mb-2 block text-sm font-bold">상품 제목</span>
               <input value={productTitle} onChange={(event) => setProductTitle(event.target.value)} required className="h-12 w-full rounded-md border border-line px-3 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20" placeholder="예: 무선 미니 청소기" />
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-sm font-bold">타겟</span>
+              <select value={targetAudience} onChange={(event) => setTargetAudience(event.target.value)} className="h-12 w-full rounded-md border border-line bg-white px-3 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20">
+                {targetOptions.map((target) => (
+                  <option key={target} value={target}>
+                    {target}
+                  </option>
+                ))}
+              </select>
             </label>
             <label className="block">
               <span className="mb-2 block text-sm font-bold">상품 이미지 붙여넣기</span>
@@ -227,7 +266,11 @@ export default function Home() {
                     <p className="mt-2 text-xs font-bold text-ink">{productImage?.name || "붙여넣은 상품 이미지"}</p>
                   </div>
                 ) : (
-                  <p className="text-sm font-semibold leading-6 text-[#52616f]">이 영역을 클릭한 뒤<br />캡처한 상품 이미지를 Ctrl+V로 붙여넣으세요</p>
+                  <p className="text-sm font-semibold leading-6 text-[#52616f]">
+                    이 영역을 클릭한 뒤
+                    <br />
+                    캡처한 상품 이미지를 Ctrl+V로 붙여넣으세요
+                  </p>
                 )}
               </div>
             </label>
@@ -236,11 +279,14 @@ export default function Home() {
               <input value={coupangLink} onChange={(event) => setCoupangLink(event.target.value)} required type="url" className="h-12 w-full rounded-md border border-line px-3 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20" placeholder="https://link.coupang.com/..." />
             </label>
           </div>
+
           {error ? <p className="mt-4 rounded-md bg-red-50 p-3 text-sm font-bold text-red-700">{error}</p> : null}
+
           <button type="submit" disabled={loading} className="mt-5 h-12 w-full rounded-md bg-brand px-5 text-base font-black text-white transition hover:bg-[#0b7375] disabled:cursor-not-allowed disabled:opacity-60 md:w-auto">
             {loading ? "생성 중" : "콘텐츠 생성"}
           </button>
         </form>
+
         <ResultSection result={result} onInforkComplete={onInforkComplete} />
       </div>
     </main>
