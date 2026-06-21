@@ -46,12 +46,13 @@
         "content_type": "application/json",
         "body": {
           "prompt": "{{1.영상프롬프트}}",
-          "first_3_seconds_text": "{{1.대표후킹문구}}",
+          "first_3_seconds_emotion_hook": "{{1.대표후킹문구}}",
           "hook_pattern": "{{1.후킹패턴}}",
-          "thumbnail_text": "{{1.대표썸네일문구}}",
+          "thumbnail_text_for_editor": "{{1.대표썸네일문구}}",
           "thumbnail_prompt": "{{1.썸네일프롬프트}}",
+          "text_policy": "No text, no subtitles, no captions, no typography, no letters, no words, no watermark inside generated video",
           "aspect_ratio": "9:16",
-          "duration_seconds": 12,
+          "duration_seconds": 11,
           "hook_required": true,
           "product_name": "{{1.상품명}}",
           "product_image": "{{1.상품이미지}}"
@@ -80,6 +81,7 @@
   ],
   "notes": [
     "Higgsfield가 video_url이 아니라 job_id를 반환하면, step 3 뒤에 Sleep과 HTTP 조회 모듈을 추가해야 한다.",
-    "Make에서 Notion 컬럼명이 다르게 보이면 실제 컬럼명에 맞춰 매핑한다."
+    "Make에서 Notion 컬럼명이 다르게 보이면 실제 컬럼명에 맞춰 매핑한다.",
+    "영상 내부에는 텍스트, 자막, 글자, 워터마크가 생성되지 않도록 한다. 대표 문구는 감정 후킹 의도와 편집 참고용으로만 사용한다."
   ]
 }
