@@ -6,7 +6,7 @@ function TextList({ items }) {
   return (
     <ol className="space-y-2">
       {items.map((item, index) => (
-        <li key={`${item}-${index}`} className="rounded-md bg-surface p-3 text-sm leading-6">
+        <li key={`${item}-${index}`} className="whitespace-pre-wrap rounded-md bg-surface p-3 text-sm leading-6">
           {item}
         </li>
       ))}
@@ -57,20 +57,60 @@ export default function ResultSection({ result, onInforkComplete }) {
         </div>
       </div>
 
-      <Block title="상품 분석">
-        <p className="text-sm leading-6">{content.productAnalysis}</p>
-      </Block>
-
       <Block title="1. 영상 기획 의도">
         <p className="rounded-md bg-surface p-3 text-sm leading-6">{content.planningIntent || content.productAnalysis}</p>
       </Block>
 
-      <Block title="타겟 고객">
-        <TextList items={content.target} />
+      <Block title="2. 문제 정의">
+        <p className="rounded-md bg-surface p-3 text-sm leading-6">{content.problemDefinition}</p>
       </Block>
 
-      <Block title="2. 핵심 장점 3개">
+      <Block title="3. 공감 포인트">
+        <p className="rounded-md bg-surface p-3 text-sm leading-6">{content.empathyPoint}</p>
+      </Block>
+
+      <Block title="4. 해결 방법">
+        <p className="rounded-md bg-surface p-3 text-sm leading-6">{content.solution}</p>
+      </Block>
+
+      <Block title="5. 결과형 장점 3개">
         <TextList items={content.keyBenefits} />
+      </Block>
+
+      <Block title="6. 장면 구성">
+        <TextList items={content.scenePlan || content.videoScripts} />
+      </Block>
+
+      <Block title="7. 나레이션">
+        <div className="flex items-start gap-2">
+          <p className="flex-1 whitespace-pre-wrap rounded-md bg-surface p-3 text-sm leading-6">{content.narration}</p>
+          <CopyButton value={content.narration} />
+        </div>
+      </Block>
+
+      <Block title="8. CTA">
+        <div className="flex items-start gap-2">
+          <p className="flex-1 rounded-md bg-surface p-3 text-sm leading-6">{content.cta}</p>
+          <CopyButton value={content.cta} />
+        </div>
+      </Block>
+
+      <Block title="9. Kling 3.0 최종 영상 프롬프트">
+        <div className="flex items-start gap-2">
+          <p className="flex-1 whitespace-pre-wrap rounded-md bg-surface p-3 text-sm leading-6">
+            {content.higgsfield.klingVideoPrompt || content.higgsfield.videoPrompt}
+          </p>
+          <CopyButton value={content.higgsfield.klingVideoPrompt || content.higgsfield.videoPrompt} />
+        </div>
+      </Block>
+
+      <Block title="10. Seedance 2.0 최종 영상 프롬프트">
+        <div className="flex items-start gap-2">
+          <p className="flex-1 whitespace-pre-wrap rounded-md bg-surface p-3 text-sm leading-6">
+            {content.higgsfield.seedanceVideoPrompt || content.higgsfield.videoPrompt}
+          </p>
+          <CopyButton value={content.higgsfield.seedanceVideoPrompt || content.higgsfield.videoPrompt} />
+        </div>
       </Block>
 
       <Block title="대표 후킹 / 썸네일">
@@ -96,75 +136,6 @@ export default function ResultSection({ result, onInforkComplete }) {
 
       <Block title="썸네일 문구 10개">
         <TextList items={content.thumbnailTexts} />
-      </Block>
-
-      <Block title="3. 장면 구성">
-        <TextList items={content.scenePlan || content.videoScripts} />
-      </Block>
-
-      <Block title="4. 나레이션">
-        <div className="flex items-start gap-2">
-          <p className="flex-1 whitespace-pre-wrap rounded-md bg-surface p-3 text-sm leading-6">{content.narration}</p>
-          <CopyButton value={content.narration} />
-        </div>
-      </Block>
-
-      <Block title="5. CTA">
-        <div className="flex items-start gap-2">
-          <p className="flex-1 rounded-md bg-surface p-3 text-sm leading-6">{content.cta}</p>
-          <CopyButton value={content.cta} />
-        </div>
-      </Block>
-
-      <Block title="6. 클링 3.0 / 씨댄스 2.0 최종 영상 프롬프트">
-        <div className="flex items-start gap-2">
-          <p className="flex-1 whitespace-pre-wrap rounded-md bg-surface p-3 text-sm leading-6">{content.higgsfield.videoPrompt}</p>
-          <CopyButton value={content.higgsfield.videoPrompt} />
-        </div>
-      </Block>
-
-      <Block title="인스타 캡션 3개">
-        <TextList items={content.instagramCaptions} />
-      </Block>
-
-      <Block title="유튜브 설명란">
-        <div className="flex items-start gap-2">
-          <p className="flex-1 whitespace-pre-wrap rounded-md bg-surface p-3 text-sm leading-6">{content.youtubeDescription}</p>
-          <CopyButton value={content.youtubeDescription} />
-        </div>
-      </Block>
-
-      <Block title="틱톡 캡션">
-        <div className="flex items-start gap-2">
-          <p className="flex-1 rounded-md bg-surface p-3 text-sm leading-6">{content.tiktokCaption}</p>
-          <CopyButton value={content.tiktokCaption} />
-        </div>
-      </Block>
-
-      <Block title="고정댓글">
-        <div className="flex items-start gap-2">
-          <p className="flex-1 whitespace-pre-wrap rounded-md bg-surface p-3 text-sm leading-6">{content.pinnedComment}</p>
-          <CopyButton value={content.pinnedComment} />
-        </div>
-      </Block>
-
-      <Block title="Higgsfield 생성 데이터">
-        <div className="grid gap-3 md:grid-cols-2">
-          <div className="rounded-md bg-surface p-3">
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <p className="text-sm font-bold">영상 프롬프트</p>
-              <CopyButton value={content.higgsfield.videoPrompt} />
-            </div>
-            <p className="text-sm leading-6">{content.higgsfield.videoPrompt}</p>
-          </div>
-          <div className="rounded-md bg-surface p-3">
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <p className="text-sm font-bold">썸네일 프롬프트</p>
-              <CopyButton value={content.higgsfield.thumbnailPrompt} />
-            </div>
-            <p className="text-sm leading-6">{content.higgsfield.thumbnailPrompt}</p>
-          </div>
-        </div>
       </Block>
 
       <Block title="인포크 등록">
