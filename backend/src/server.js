@@ -46,11 +46,15 @@ app.post("/content/generate", upload.single("productImage"), async (req, res, ne
   try {
     const productTitle = req.body.productTitle;
     const coupangLink = req.body.coupangLink;
-    const targetAudience = req.body.targetAudience || req.body.target || "자녀 구매층";
+    const targetAudience = String(req.body.targetAudience || req.body.target || "").trim();
     const inforkLink = req.body.inforkLink || "";
 
     if (!productTitle || !coupangLink) {
       return res.status(400).json({ error: "상품 제목과 쿠팡파트너스 링크는 필수입니다." });
+    }
+
+    if (!targetAudience) {
+      return res.status(400).json({ error: "타겟을 선택해주세요" });
     }
 
     let imageName = req.file?.originalname || "";
