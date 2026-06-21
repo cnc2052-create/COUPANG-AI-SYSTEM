@@ -45,12 +45,44 @@ const targetProfiles = {
   }
 };
 
+const detailTargetGroups = {
+  "부모님을 걱정하는 30~40대 딸": "자녀 구매층",
+  "부모님을 걱정하는 40~50대 딸": "자녀 구매층",
+  "부모님을 걱정하는 40~50대 아들": "자녀 구매층",
+  "부모님 선물을 찾는 자녀": "자녀 구매층",
+  "거동이 불편한 60대 여성": "실사용자",
+  "거동이 불편한 60대 남성": "실사용자",
+  "거동이 불편한 70대 여성": "실사용자",
+  "거동이 불편한 70대 남성": "실사용자",
+  "무릎 통증이 있는 노인": "실사용자",
+  "허리 통증이 있는 노인": "실사용자",
+  "보행이 불편한 노인": "실사용자",
+  "외출이 어려운 노인": "실사용자",
+  "치매 환자 보호자": "보호자",
+  "장기 간병 보호자": "보호자",
+  "배우자를 돌보는 노인": "보호자",
+  "부모를 돌보는 가족": "보호자",
+  "요양보호사": "요양·복지 종사자",
+  "간병인": "요양·복지 종사자",
+  "복지시설 종사자": "요양·복지 종사자",
+  "요양원 운영자": "요양·복지 종사자",
+  "수술 후 회복 환자": "재활 환자",
+  "재활 치료 중인 환자": "재활 환자",
+  "낙상 경험이 있는 노인": "재활 환자",
+  "보행 보조가 필요한 환자": "재활 환자",
+  "건강한 액티브 시니어": "액티브 시니어",
+  "여행을 좋아하는 시니어": "액티브 시니어",
+  "외출을 즐기는 시니어": "액티브 시니어",
+  "독립적인 생활을 원하는 시니어": "액티브 시니어"
+};
+
 function cleanTitle(title) {
   return String(title || "").trim().replace(/\s+/g, " ");
 }
 
 function normalizeTarget(value) {
   const target = String(value || "").trim();
+  if (detailTargetGroups[target]) return target;
   if (targetProfiles[target]) return target;
   if (/자녀|효도|부모님/.test(target)) return "자녀 구매층";
   if (/실사용|노인|시니어|어르신/.test(target)) return "실사용자";
@@ -59,6 +91,11 @@ function normalizeTarget(value) {
   if (/재활|회복|환자/.test(target)) return "재활 환자";
   if (/액티브|외출|산책/.test(target)) return "액티브 시니어";
   return "자녀 구매층";
+}
+
+function getTargetGroup(target) {
+  const group = detailTargetGroups[target] || target;
+  return targetProfiles[group] ? group : "자녀 구매층";
 }
 
 function inferCategory(title) {
@@ -121,10 +158,11 @@ function buildHookPattern(target, category) {
 }
 
 function buildThumbnailTexts(target) {
-  if (target === "자녀 구매층") {
+  const group = getTargetGroup(target);
+  if (group === "자녀 구매층") {
     return ["부모님 걱정된다면", "이 장면 익숙하죠", "안심되는 변화", "효도템 후보", "외출이 편해짐", "부담 줄이는 방법", "부모님 일상템", "보호자도 안심", "실사용 장면", "이런 분께 추천"];
   }
-  if (target === "실사용자") {
+  if (group === "실사용자") {
     return ["혼자 하고 싶다면", "일상이 가벼워짐", "자신감 회복", "10초 실사용", "이동이 편해짐", "매일 쓰는 이유", "부담 줄이는 방법", "실사용 장면", "외출 준비템", "이런 분께 추천"];
   }
   return ["이런 분께 추천", "부담 줄이는 방법", "10초 실사용", "안심되는 변화", "실사용 장면", "일상이 편해짐", "보호자도 안심", "외출 준비템", "매일 쓰는 이유", "자세히 보기"];
@@ -191,7 +229,8 @@ function buildFinalVideoPrompt({ productName, target, category, profile, benefit
 export function generateContent(input) {
   const productName = cleanTitle(input.productTitle);
   const selectedTarget = normalizeTarget(input.targetAudience || input.target || "");
-  const profile = targetProfiles[selectedTarget];
+  const targetGroup = getTargetGroup(selectedTarget);
+  const profile = targetProfiles[targetGroup];
   const category = inferCategory(productName);
   const keyBenefits = buildBenefits(productName, category).slice(0, 3);
   const hooks = buildHooks(profile, category);
@@ -204,7 +243,7 @@ export function generateContent(input) {
   const finalVideoPrompt = buildFinalVideoPrompt({ productName, target: selectedTarget, category, profile, benefits: keyBenefits });
   const cta = profile.cta;
 
-  const planningIntent = `${selectedTarget}은 ${profile.emotion} 감정이 중요합니다. 이 영상은 제품을 먼저 팔지 않고, ${profile.problem}을 먼저 보여준 뒤 공감과 해결 장면을 통해 "${profile.result}"를 기억하게 만드는 쇼핑 숏폼입니다.`;
+  const planningIntent = `${selectedTarget}에게는 ${profile.emotion} 감정이 중요합니다. 이 영상은 제품을 먼저 팔지 않고, ${profile.problem}을 먼저 보여준 뒤 공감과 해결 장면을 통해 "${profile.result}"를 기억하게 만드는 쇼핑 숏폼입니다.`;
 
   const instagramCaptions = [
     `${planningIntent}\n\n${cta}\n\n${disclosure}`,
@@ -221,6 +260,7 @@ export function generateContent(input) {
     productAnalysis: planningIntent,
     planningIntent,
     target: [selectedTarget, profile.problem, profile.emotion],
+    targetGroup,
     targetAudience: selectedTarget,
     problemDefinition: profile.problem,
     empathyPoint: profile.empathy,
