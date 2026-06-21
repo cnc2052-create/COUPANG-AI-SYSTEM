@@ -170,16 +170,16 @@ function buildThumbnailTexts(target) {
 
 function buildScenePlan(productName, profile, benefits) {
   return [
-    `장면1 0~1초: 제품 없이, 불편한 표정의 한국인 시니어 또는 보호자가 일상 속 작은 어려움을 겪는 장면`,
-    `장면2 1~2초: 같은 문제가 반복되어 잠시 멈칫하는 손짓이나 표정 클로즈업`,
-    `장면3 2~3초: 보호자 또는 가족이 걱정스러운 눈빛으로 지켜보는 장면`,
-    `장면4 3~4초: ${profile.empathy}`,
-    `장면5 4~5초: 자연스럽게 해결책이 필요한 상황을 보여주며 긴장감을 낮춤`,
-    `장면6 5~6초: ${productName}이 생활 공간 안에 자연스럽게 등장`,
-    `장면7 6~7초: ${benefits[0]}이 느껴지는 실제 사용 장면`,
-    `장면8 7~8초: ${benefits[1]}이 드러나는 준비 또는 보관 장면`,
-    `장면9 8~9초: ${benefits[2]}이 느껴지는 보호자와 사용자의 안정된 표정`,
-    `장면10 9~11초: ${profile.result}, 자연광, 따뜻한 분위기, 강한 판매 연출 없이 마무리`
+    `장면1\n제품 없이, 불편한 표정의 한국인 시니어 또는 보호자가 일상 속 작은 어려움을 겪는 장면`,
+    `장면2\n같은 문제가 반복되어 잠시 멈칫하는 손짓이나 표정 클로즈업`,
+    `장면3\n보호자 또는 가족이 걱정스러운 눈빛으로 지켜보는 장면`,
+    `장면4\n${profile.empathy}`,
+    `장면5\n자연스럽게 해결책이 필요한 상황을 보여주며 긴장감을 낮춤`,
+    `장면6\n${productName}이 생활 공간 안에 자연스럽게 등장`,
+    `장면7\n${benefits[0]}이 느껴지는 실제 사용 장면`,
+    `장면8\n${benefits[1]}이 드러나는 준비 또는 보관 장면`,
+    `장면9\n${benefits[2]}이 느껴지는 보호자와 사용자의 안정된 표정`,
+    `장면10\n${profile.result}, 자연광, 따뜻한 분위기, 강한 판매 연출 없이 마무리`
   ];
 }
 
@@ -195,8 +195,9 @@ function buildNarration(productName, profile, benefits) {
   ].join(" ");
 }
 
-function buildFinalVideoPrompt({ productName, target, category, profile, benefits }) {
+function buildFinalVideoPrompt({ engine, productName, target, category, profile, benefits, narration }) {
   return [
+    `${engine} final video prompt`,
     "9:16 vertical video",
     "Ultra realistic",
     "Korean people",
@@ -212,13 +213,17 @@ function buildFinalVideoPrompt({ productName, target, category, profile, benefit
     "No typography",
     "No letters",
     "No words",
+    "No logo",
     "No watermark",
     `Product: ${productName}`,
     `Target audience: ${target}`,
     `Category: ${category}`,
+    "Voice-over narration is required",
+    `Korean voice-over narration: ${narration}`,
     `Story formula: self-identification, problem, empathy, solution, three result-oriented benefits, happy outcome, soft CTA`,
     `Start with a Korean person experiencing this problem: ${profile.problem}`,
-    "Do not show the product first. Do not explain specs. Do not use home-shopping style.",
+    "Show people and emotion first, then reveal the product later.",
+    "Do not show the product first. Do not explain specs. Do not list features. Do not use home-shopping style.",
     "First 3 seconds must contain at least three fast visual cuts with no on-screen text.",
     `Show result-oriented benefits through action only: ${benefits.join(", ")}`,
     `End with happy result: ${profile.result}`,
@@ -240,7 +245,8 @@ export function generateContent(input) {
   const hookPattern = buildHookPattern(selectedTarget, category);
   const scenePlan = buildScenePlan(productName, profile, keyBenefits);
   const narration = buildNarration(productName, profile, keyBenefits);
-  const finalVideoPrompt = buildFinalVideoPrompt({ productName, target: selectedTarget, category, profile, benefits: keyBenefits });
+  const klingVideoPrompt = buildFinalVideoPrompt({ engine: "Kling 3.0", productName, target: selectedTarget, category, profile, benefits: keyBenefits, narration });
+  const seedanceVideoPrompt = buildFinalVideoPrompt({ engine: "Seedance 2.0", productName, target: selectedTarget, category, profile, benefits: keyBenefits, narration });
   const cta = profile.cta;
 
   const planningIntent = `${selectedTarget}에게는 ${profile.emotion} 감정이 중요합니다. 이 영상은 제품을 먼저 팔지 않고, ${profile.problem}을 먼저 보여준 뒤 공감과 해결 장면을 통해 "${profile.result}"를 기억하게 만드는 쇼핑 숏폼입니다.`;
@@ -283,14 +289,20 @@ export function generateContent(input) {
     disclosure,
     finalOutput: {
       "1. 영상 기획 의도": planningIntent,
-      "2. 핵심 장점 3개": keyBenefits,
-      "3. 장면 구성": scenePlan,
-      "4. 나레이션": narration,
-      "5. CTA": cta,
-      "6. 클링 3.0 / 씨댄스 2.0 최종 영상 프롬프트": finalVideoPrompt
+      "2. 문제 정의": profile.problem,
+      "3. 공감 포인트": profile.empathy,
+      "4. 해결 방법": `${productName}을 생활 장면 속 해결책으로 자연스럽게 제시`,
+      "5. 결과형 장점 3개": keyBenefits,
+      "6. 장면 구성": scenePlan,
+      "7. 나레이션": narration,
+      "8. CTA": cta,
+      "9. Kling 3.0 최종 영상 프롬프트": klingVideoPrompt,
+      "10. Seedance 2.0 최종 영상 프롬프트": seedanceVideoPrompt
     },
     higgsfield: {
-      videoPrompt: finalVideoPrompt,
+      videoPrompt: klingVideoPrompt,
+      klingVideoPrompt,
+      seedanceVideoPrompt,
       thumbnailPrompt: [
         "Premium realistic thumbnail reference image",
         `Product: ${productName}`,
