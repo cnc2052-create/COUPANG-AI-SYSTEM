@@ -32,17 +32,24 @@ HTTP Body:
 ```json
 {
   "prompt": "{{영상프롬프트}}",
-  "first_3_seconds_text": "{{대표후킹문구}}",
+  "first_3_seconds_emotion_hook": "{{대표후킹문구}}",
   "hook_pattern": "{{후킹패턴}}",
-  "thumbnail_text": "{{대표썸네일문구}}",
+  "thumbnail_text_for_editor": "{{대표썸네일문구}}",
   "thumbnail_prompt": "{{썸네일프롬프트}}",
+  "text_policy": "No text, no subtitles, no captions, no typography, no letters, no words, no watermark inside generated video",
   "aspect_ratio": "9:16",
-  "duration_seconds": 12,
+  "duration_seconds": 11,
   "hook_required": true,
   "product_name": "{{상품명}}",
   "product_image": "{{상품이미지}}"
 }
 ```
+
+중요:
+
+- `대표후킹문구`는 영상 안 글자가 아니라 첫 3초 감정 후킹 의도다.
+- `대표썸네일문구`는 편집자/외부 썸네일 참고용이다.
+- 생성 영상 내부에는 텍스트, 자막, 글자, 워터마크가 나오면 안 된다.
 
 완료 업데이트:
 
@@ -90,8 +97,8 @@ Notion 마지막 업데이트:
 Notion 테스트 항목:
 
 - `상품명`: 테스트 상품
-- `대표후킹문구`: 첫 3초에 들어갈 문구
-- `대표썸네일문구`: 썸네일에 들어갈 문구
+- `대표후킹문구`: 첫 3초 감정 후킹 의도
+- `대표썸네일문구`: 편집용 썸네일 문구
 - `영상프롬프트`: 9:16 숏폼 영상 프롬프트
 - `영상상태`: 영상생성대기
 
