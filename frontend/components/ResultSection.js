@@ -34,6 +34,16 @@ export default function ResultSection({ result, onInforkComplete }) {
         <div>
           <p className="text-sm font-semibold text-brand">생성 완료</p>
           <h1 className="mt-1 text-xl font-black md:text-2xl">{content.productName}</h1>
+          <div className="mt-3 grid gap-2 rounded-md bg-surface p-3 text-sm leading-6">
+            <p>
+              <span className="font-black text-brand">제목</span>
+              <span className="ml-2 font-bold text-ink">{content.productName}</span>
+            </p>
+            <p>
+              <span className="font-black text-brand">타겟</span>
+              <span className="ml-2 font-bold text-ink">{content.targetAudience}</span>
+            </p>
+          </div>
           {item.notionUrl ? (
             <a className="mt-2 inline-block text-sm font-semibold text-brand" href={item.notionUrl} target="_blank">
               Notion 기록 열기
@@ -51,11 +61,15 @@ export default function ResultSection({ result, onInforkComplete }) {
         <p className="text-sm leading-6">{content.productAnalysis}</p>
       </Block>
 
+      <Block title="1. 영상 기획 의도">
+        <p className="rounded-md bg-surface p-3 text-sm leading-6">{content.planningIntent || content.productAnalysis}</p>
+      </Block>
+
       <Block title="타겟 고객">
         <TextList items={content.target} />
       </Block>
 
-      <Block title="핵심 장점">
+      <Block title="2. 핵심 장점 3개">
         <TextList items={content.keyBenefits} />
       </Block>
 
@@ -84,8 +98,29 @@ export default function ResultSection({ result, onInforkComplete }) {
         <TextList items={content.thumbnailTexts} />
       </Block>
 
-      <Block title="영상 대본 3개">
-        <TextList items={content.videoScripts} />
+      <Block title="3. 장면 구성">
+        <TextList items={content.scenePlan || content.videoScripts} />
+      </Block>
+
+      <Block title="4. 나레이션">
+        <div className="flex items-start gap-2">
+          <p className="flex-1 whitespace-pre-wrap rounded-md bg-surface p-3 text-sm leading-6">{content.narration}</p>
+          <CopyButton value={content.narration} />
+        </div>
+      </Block>
+
+      <Block title="5. CTA">
+        <div className="flex items-start gap-2">
+          <p className="flex-1 rounded-md bg-surface p-3 text-sm leading-6">{content.cta}</p>
+          <CopyButton value={content.cta} />
+        </div>
+      </Block>
+
+      <Block title="6. 클링 3.0 / 씨댄스 2.0 최종 영상 프롬프트">
+        <div className="flex items-start gap-2">
+          <p className="flex-1 whitespace-pre-wrap rounded-md bg-surface p-3 text-sm leading-6">{content.higgsfield.videoPrompt}</p>
+          <CopyButton value={content.higgsfield.videoPrompt} />
+        </div>
       </Block>
 
       <Block title="인스타 캡션 3개">
